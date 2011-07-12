@@ -1,0 +1,225 @@
+<html>
+<!--
+	Developer : Dennis Lutter (lad1337@gmail.com)
+	Date : 28/01/2011
+
+    This file is part of Google Wikie Chrome Extension(= GoogleWiki).
+
+    GoogleWiki is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    GoogleWiki is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with GoogleWiki.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<head>
+<script>
+
+chrome.extension.onConnect.addListener(connection);
+var globalPort;
+var config;
+
+// i am using this as a init function
+function connection(port){
+	globalPort = port;
+	globalPort.onMessage.addListener(onMsg);
+	getConfig();
+}
+
+function getConfig(){
+	
+	var languagesList = ['en'];
+	if(localStorage["languagesList"])
+		languagesList = localStorage["languagesList"].split(',');
+		
+	var getLongestArticleBoolean = false;
+	config = {languages: languagesList,getLongestArticle: getLongestArticleBoolean};
+	return config;
+	//languages = ['fr','de','en'];
+}
+
+function onMsg(msg){
+	if(msg.t == 'all'){
+		getWikiArticles(msg,0,0);
+	}else if(msg.t == 'onlyAricle'){
+		getWikiArticle(msg.articleName, msg.lang);
+	}else if(msg.t == 'getConfig'){
+		sendConfig();
+	}else{
+		alert("unknown type");	
+	}
+	
+}
+
+function sendConfig(){
+	getConfig();
+	
+	globalPort.postMessage({ t: 'config',data: config.languages});
+}
+
+
+// @param msg - string: the message from the contentscript
+// @param language - string: the language 
+function getWikiArticles(msg,language,lastResults){
+	//alert(language+" - "+lastResult);
+	sendLog("looking for an article: "+msg.searchString+" in the language: '"+config.languages[language]+"'");
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function(data) {
+    	if (xhr.readyState == 4) {
+			if (xhr.status == 200) {
+				var fetchedData = JSON.parse(xhr.responseText);
+				analyseFetchedData(msg, fetchedData, language, lastResults);
+			} else {
+				sendLog("No response from other server while tring to get the list. Check your language options");
+				//TODO: make a user message
+				globalPort.postMessage({ t: 'status',data:'nothingFound'});
+				//sendError("no response from other server while tring to get the list");
+			}
+		}
+	}
+	// Note that any URL fetched here must be matched by a permission in
+	// the manifest.json file!
+	//var url = 'http://'+languages[language]+'.wikipedia.org/w/api.php?action=opensearch&format=json&search='+msg.searchString;
+	var url = 'http://'+config.languages[language]+'.wikipedia.org/w/api.php?format=json&action=query&list=search&srprop=wordcount&srsearch='+msg.searchString;
+	
+	
+	//alert(url);
+	xhr.open('GET', url, true);
+	xhr.send();
+}
+
+function analyseFetchedData(msg, fetchedData, language, lastResults){
+	sendLog("analysis started.");
+	var choosenArticle = 0;
+	var longestArticleSize = 0;
+	if(config.getLongestArticle){
+		for (i=0;i<=4;i++){
+			if(fetchedData.query.search[i] != null){
+				sendLog("wordcount: "+longestArticleSize +" vs "+ fetchedData.query.search[i].wordcount);
+				if(longestArticleSize < fetchedData.query.search[i].wordcount){
+					choosenArticle = i;
+					longestArticleSize = fetchedData.query.search[i].wordcount; 
+				}
+			}
+		}
+	}
+	
+	sendLog("choosenArticle: "+choosenArticle);
+	
+	if(lastResults == 0 && language+1 < config.languages.length){
+		var newLanguage = language+1;	
+		sendLog("switching to '"+config.languages[newLanguage]+"'");
+		getWikiArticles(msg,newLanguage,fetchedData);
+		//globalPort.postMessage({ t: 'banner',data:fetchedData,lang: language});
+		
+	}else if(lastResults != 0 && lastResults.query.searchinfo.totalhits > fetchedData.query.searchinfo.totalhits){
+		// if the last language had more results then the current one
+		sendLog("totalmatches: "+lastResults.query.searchinfo.totalhits +" vs "+ fetchedData.query.searchinfo.totalhits);
+		sendLog("last query had more results back one language");
+		getWikiArticle(lastResults.query.search[choosenArticle].title, language-1);
+		globalPort.postMessage({ t: 'banner',data:lastResults,articleNumber: choosenArticle,lang: language-1});
+	
+	}else if(fetchedData.query.search[choosenArticle] != null){
+		// was something found?
+		sendLog("something found");
+		getWikiArticle(fetchedData.query.search[choosenArticle].title, language);
+		globalPort.postMessage({ t: 'banner',data:fetchedData,articleNumber: choosenArticle,lang: language});
+	}else{
+		globalPort.postMessage({ t: 'status',data:'nothingFound'});
+		sendLog("nothingFound");
+	}
+}
+
+
+
+function analyseFetchedData_OLD(msg, fetchedData, language, lastResults){
+	sendLog("analysis started. ");
+	//sendLog("lastResults:"+lastResults+" fetchedData[1].length:"+fetchedData[1].length);
+	/*
+	if(fetchedData[1].length > 0 && fetchedData[1][0].toLowerCase() == msg.searchString.toLowerCase())
+		sendLog("no perfect match for '"+languages[language]+"'");
+	else
+		sendLog("found a perfekt match in language '"+languages[language]+"'");
+	*/
+	
+	var firstArticleName = fetchedData[1][0];
+	var searchString = msg.searchString.toLowerCase();
+	if(typeof(firstArticleName) != 'undefined'){
+		firstArticleName = firstArticleName.toLowerCase();
+		firstArticleName = firstArticleName.replace(/\(/g, ""); // striping (
+		firstArticleName = firstArticleName.replace(/\)/g, ""); // striping )
+		
+		searchString = searchString.replace(/\(/g, ""); // striping (
+		searchString = searchString.replace(/\)/g, ""); // striping )
+		
+	}
+	sendLog("'"+firstArticleName +"' vs '"+searchString+"' ->");
+	sendLog(firstArticleName == searchString);
+	
+	if(fetchedData[1].length > 0 && firstArticleName == searchString){
+	
+		sendLog("perfekt! wiki found "+fetchedData[1].length+" articles in "+languages[language]);
+		globalPort.postMessage({ t: 'banner',data:fetchedData,lang: language});
+		getWikiArticle(fetchedData[1][0], language);
+		
+	}else if(language+1 < languages.length){
+		// retry with next language
+		var newLanguage = language+1;	
+		sendLog("switching to '"+languages[newLanguage]+"'");
+		getWikiArticles(msg,newLanguage,fetchedData);
+	
+	}else if(lastResults[1].length > 0){
+		var oldLanguage = language-1;
+		
+		sendLog("second. wiki found "+lastResults[1].length+" articles in "+languages[oldLanguage]);
+		globalPort.postMessage({ t: 'banner',data:lastResults,lang: oldLanguage});
+		getWikiArticle(lastResults[1][0], oldLanguage);
+	
+	}else{
+		globalPort.postMessage({ t: 'status',data:'nothingFound'});
+	}
+	sendLog("analysis finished!");
+}
+
+
+function getWikiArticle(articleName, language){
+	//alert("looking for article: "+articleName);
+	sendLog("fetching article '"+articleName+"' in language '"+config.languages[language]+"'");
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function(data) {
+    	if (xhr.readyState == 4) {
+			if (xhr.status == 200) {
+				//var data = JSON.parse(xhr.responseText);
+				//alert("got the page. now psoting to contentscipt");
+				globalPort.postMessage({t: 'article',data:xhr.responseText});
+			} else {
+				sendError("no response from other server while tring to get the article");
+			}
+		}
+	}
+	// Note that any URL fetched here must be matched by a permission in
+	// the manifest.json file!
+	var url = 'http://'+config.languages[language]+'.wikipedia.org/wiki/'+articleName;
+	//alert(url);
+	xhr.open('GET', url, true);
+	xhr.send();
+}
+
+function sendError(errorMsg){
+	globalPort.postMessage({ t: 'error',data:errorMsg});	
+}
+function sendLog(logMsg){
+	globalPort.postMessage({ t: 'log',data:logMsg});	
+}
+
+
+
+</script>
+</head>
+</html>

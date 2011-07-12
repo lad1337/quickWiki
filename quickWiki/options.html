@@ -1,0 +1,118 @@
+<html>
+<!--
+	Developer : Dennis Lutter (lad1337@gmail.com)
+	Date : 28/01/2011
+
+    This file is part of Google Wikie Chrome Extension(= GoogleWiki).
+
+    GoogleWiki is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    GoogleWiki is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with GoogleWiki.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<head>
+<title>Google Wiki - Options</title>
+
+<style type="text/css">
+<!--
+.options ul li*{	
+}
+-->
+</style>
+
+</head>
+<script type="text/javascript">
+
+// Saves options to localStorage.
+function save_options() {
+
+  	var languages = document.getElementById("languages");
+	if(wasNoob(languages.value)){
+		restore_options();
+		return false;
+	}
+	
+	if(languages.value != ""){
+		localStorage["languagesList"] = languages.value;
+	}else
+		localStorage["languagesList"] = 'en';
+	restore_options();
+	
+	
+	
+	
+	
+}
+
+function wasNoob(str){
+	var regexpComma = new RegExp(",","m");
+	var regexpDualAlpha = new RegExp("[a-z][a-z]","igm");
+	
+	if(str.search(regexpComma) < 0 && str.length > 2){
+		//alert("noob");
+		return true;
+	}
+	var langagesArray = str.split(",");
+	for(var i = 0;i<langagesArray.length;i++){
+		//alert(langagesArray[i].search(regexpDualAlpha));
+		if(langagesArray[i].length > 2 || langagesArray[i].search(regexpDualAlpha) != 0 ){
+			//alert("noob");
+			return true;
+		}
+		
+	}
+	return false;
+}
+
+
+// Restores select box state to saved value from localStorage.
+function restore_options() { 
+  var languagesList = 'en';
+  if(localStorage["languagesList"])
+  	languagesList = localStorage["languagesList"];
+  var languages = document.getElementById("languages");
+  
+  languages.value = languagesList;
+}
+
+</script>
+
+<body onload="restore_options()">
+
+	<h1>Options for Google Wiki</h1>
+	<div class="options">
+		<p>
+			Default language is english (="en").
+		</p>
+		<p>
+			Use language codes from Wikipedia.<br/>
+			e.g.: http://<strong>en</strong>.wikipedia.org/wiki/Google<br/>
+			<br/>
+			Seperate codes with comma ",".<br/>
+			e.g.:
+		</p>
+		<ul>
+			<li>"en,ja" for english and japanese</li>
+			<li>"it,fr,de" for italian, french, german</li>
+		</ul>
+		<p>
+			Order of codes equals order of search queries.
+		</p>
+		<form>
+		<p>
+			<label>Languages:</label><input type="text" id="languages"/><button onclick="save_options()">Save</button>
+		</p>
+		</form>
+	</div>
+	
+	<br>
+</body>
+</html>

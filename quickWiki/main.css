@@ -1,0 +1,142 @@
+/*
+	Developer : Dennis Lutter (lad1337@gmail.com)
+	Date : 28/01/2011
+
+    This file is part of Google Wikie Chrome Extension(= GoogleWiki).
+
+    GoogleWiki is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    GoogleWiki is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with GoogleWiki.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+.editsection,
+#Notes,
+#References,
+#Further_reading,
+#External_links,
+.navbox,
+.metadata,
+.references,
+.reference,
+.external_text,
+.flaggedrevs_short_basic,
+.references-small{
+	display: none;	
+}
+
+#googlePedia{
+	float: right;
+	width: 45%;
+	overflow: hidden;
+	border-left: 1px solid #D3E1F9;
+	z-index: 999;
+	background: #fff;
+}
+#googlePediaContent{
+	margin-left: 4px;	
+}
+
+#center_col{
+	margin: 0 0 0 160px;
+	position: relative;
+	z-index: 1;	
+}
+#rhs{
+	z-index: 0;		
+}
+
+#bottomads{
+	clear: both;	
+}
+
+#disambiguation{
+	background: #D3E1F9;
+    color: #fff;
+    position: relative;
+    zIndex: 123456;
+    font: 14px Arial;
+    margin-bottom: 4px;
+}
+
+#disambiguation #linkWrapper{
+	text-align: right;
+	float: right;
+}
+
+#disambiguation #linkWrapper a,
+#disambiguation #linkWrapper a:visited,
+#disambiguation #linkWrapper a:link{
+	text-decoration: none;
+	font-size: 10px;
+	background: #fff;
+	
+	margin-bottom: 2px;
+	padding: 2px 4px;
+	color: #000;
+	display: block;
+}
+#disambiguation #linkWrapper a:hover{
+	background: none;
+}
+#disambiguation #linkWrapper a:last-child{
+	margin-bottom: 0px;	
+}
+#disambiguationHeader{
+	float: left;
+	margin-top: 10px;
+	margin-left: 10px;
+}
+
+
+#disambiguation strong{
+	font-size: 14px;	
+}
+#disambiguation strong a{
+	text-decoration: none;
+	font-size: 14px;
+	font-weight: bold;
+	color: #000;
+}
+
+#googlePediaSizeControllerWrapper{
+	position: absolute;
+	top: -3px;
+	left: 2px;
+	height: 10px;
+	width: 50px;
+}
+
+#googlePediaSizeControllerWrapper a{
+	color: #000;
+	font-size: 10px;
+	text-decoration: none;
+}
+
+#googlePediaContent #firstHeading{
+	font-size: 22px;
+	display: inline;
+}
+
+
+#res{
+	float: left;
+	width: 52%;
+	padding: 0 ! important;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+#foot{
+	float: left;	
+}
+.mw-geshi{
+	overflow-x: auto;
+}

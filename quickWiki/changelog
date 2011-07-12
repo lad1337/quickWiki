@@ -1,0 +1,29 @@
+changelog:
+
+-0.5.0
+- now under LGPL !
+
+-0.4.9
+- slighly more human option page
+
+- 0.4.8
+- script is now loaded on all/most www.google domains. like .com, .ca, and .de
+- simple options page -> language user definable
+
+- 0.4.7
+- update function
+
+- 0.4.6
+- namechange to Google Wiki
+- added logo
+
+0.4.5:
+- switched the search api. more complex searches should give better results
+- map overlay resolved
+
+0.4.1:
+- fixed a bug where it would change back to a language higher in priorety
+
+0.4.0:
+- multilanguage support
+- expanded view
