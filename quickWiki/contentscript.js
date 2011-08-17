@@ -270,11 +270,14 @@ function getSearchstring(){
 	// TDOD: get a better hold of the search string
 	// deactivated the searchfield.value thing because it gives "off" back if instand search is on .. oO
 	var searchThisTmp;
+	/*
 	if(searchField.value != "" && false){
 		searchThisTmp = searchField.value;
 	}else{
 		searchThisTmp = document.title.substring(0,end);
 	}
+	*/
+	searchThisTmp = document.title.substring(0,end);
 	log(3,"searchString: "+searchThisTmp);
 	return searchThisTmp;
 }
@@ -354,12 +357,14 @@ function prepareDOM(){
 	googlePediaWrapper.appendChild(tmpContentDiv); // adding an empty div so we can later call replaceChild()
    	goolgeResultsWrapper.appendChild(breaker);
 	
+	/*
 	var blupp = document.getElementById('tsf').getElementsByTagName("input");
 	searchField = blupp[3];
 	
 	//document.getElementById('tsf').addEventListener('onchange',searchChecker,false);
 	searchField.addEventListener('onchange',searchChecker,false);
 	searchField.setAttribute('ulu','mulu');
+	*/
 
 }
 

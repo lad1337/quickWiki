@@ -34,8 +34,8 @@
 }
 
 #googlePedia{
-	float: right;
-	width: 45%;
+	float: left;
+	width: 47%;
 	overflow: hidden;
 	border-left: 1px solid #D3E1F9;
 	z-index: 999;
@@ -43,6 +43,10 @@
 }
 #googlePediaContent{
 	margin-left: 4px;	
+}
+
+#cnt {
+	max-width: none ! important;
 }
 
 #center_col{
@@ -130,6 +134,7 @@
 #res{
 	float: left;
 	width: 52%;
+	max-width: 630px;
 	padding: 0 ! important;
 	overflow: hidden;
 	text-overflow: ellipsis;

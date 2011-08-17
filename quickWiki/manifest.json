@@ -1,7 +1,7 @@
 
 {
   "name": "Quick Wiki",
-  "version": "0.5.0",
+  "version": "0.5.2",
   "description": "Displays a wikipedia article next to the google results",
   "options_page": "options.html",
   "permissions": [
